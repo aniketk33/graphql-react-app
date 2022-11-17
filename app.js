@@ -55,4 +55,11 @@ const QueryRoot = new graphql.GraphQLObjectType({
     schema: schema,
     graphiql: true,
   }));
+
+  app.all('*', (req, res) => {
+    res.json({
+        error: "Page not found"
+    })
+})
+
   app.listen(4000);  
