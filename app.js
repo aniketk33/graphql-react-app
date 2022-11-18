@@ -14,14 +14,19 @@ const StatsDataModel = new graphql.GraphQLObjectType({
         total_death: { type: graphql.GraphQLFloat},
         new_case: { type: graphql.GraphQLFloat},
         new_death: { type: graphql.GraphQLFloat},
-
+        submission_date: { type: new graphql.GraphQLScalarType({
+            name: 'Date',
+            serialize(value) {
+              return value.toISOString();
+            },
+          })}
     }
 })
 
 const getDBResults = async ()=>{
     try {
         const dbConnection = await getDbConnection()
-        const query = 'SELECT state, sum(total_cases) as total_cases, sum(total_death) as total_death, sum(new_case) as new_case, sum(new_death) as new_death FROM stats GROUP BY state ORDER BY state;'
+        const query = 'select submission_date, state, sum(total_cases) as total_cases, sum(total_death) as total_death, sum(new_case) as new_case, sum(new_death) as new_death from stats group by submission_date, state order by state, submission_date;'
         const formatted_query = dbConnection.format(query);
         const [data] = await dbConnection.query(formatted_query)
         return data        
@@ -48,13 +53,58 @@ const QueryRoot = new graphql.GraphQLObjectType({
     })
   })
       
+  const filteredQueryRoot = new graphql.GraphQLObjectType({
+    name: 'filteredStats',
+    fields: ()=>({
+        filteredStats: {
+            type: new graphql.GraphQLList(StatsDataModel),
+            args: {
+                inputDate: { type: graphql.GraphQLString }
+              },        
+            resolve: async(_, {inputDate}) => {
+                try {
+                    const res = await getDBResults()
+                    const filteredResponse = res.filter((x)=> {
+                        const date = new Date(x.submission_date)
+                        var day = ''
+                        if (date.getDate() <= 8) {
+                            day = `0${date.getDate()}`
+                        } else {
+                            day = date.getDate()
+                        }
+                        var month = ''
+                        if (date.getMonth() <= 8) {
+                            month = `0${date.getMonth()+1}`
+                        } else {
+                            month = date.getMonth()+1
+                        }
+                        const year = date.getFullYear();
+                        const dateString = `${year}-${month}-${day}`;
+                        return dateString == inputDate
+                    })
+                    return filteredResponse
+                    
+                } catch (error) {
+                    return error
+                }
+            }
+        }
+    })
+  })
+
   const schema = new graphql.GraphQLSchema({ query: QueryRoot });
+  const filteredSchema = new graphql.GraphQLSchema({ query: filteredQueryRoot });
       
   const app = express();
   app.use('/stats', graphqlHTTP({
     schema: schema,
     graphiql: true,
   }));
+
+  app.use('/filtered-stats', graphqlHTTP({
+    schema: filteredSchema,
+    graphiql: true
+  }))
 
   app.all('*', (req, res) => {
     res.json({
