@@ -67,7 +67,7 @@ const QueryRoot = new graphql.GraphQLObjectType({
                     const filteredResponse = res.filter((x)=> {
                         const date = new Date(x.submission_date)
                         var day = ''
-                        if (date.getDate() <= 8) {
+                        if (date.getDate() <= 9) {
                             day = `0${date.getDate()}`
                         } else {
                             day = date.getDate()
