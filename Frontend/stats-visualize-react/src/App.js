@@ -4,20 +4,17 @@ import './App.css';
 
 function App() {
   const [data, setData] = React.useState(null);
-  let myHeaders = new Headers();
-myHeaders.append("Content-Type", "application/json");
-
-const raw = `
-query{
-  statistics{
-      state
-      total_cases
-      total_death
-      new_death
-      new_case
-      submission_date
-  }
-}`;
+  const raw = `
+  query{
+    statistics{
+        state
+        total_cases
+        total_death
+        new_death
+        new_case
+        submission_date
+    }
+  }`
 
 
   React.useEffect(() => {
