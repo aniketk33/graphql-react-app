@@ -8,7 +8,9 @@ class ChoroplethMap extends Component {
 		super(props);
 		this.state ={ data: [],
 			total_cases: [],
+			total_death: [],
 		states: [],
+		year: [],
 	 }
 	}
 
@@ -42,12 +44,20 @@ class ChoroplethMap extends Component {
 				console.log(resJson);		
 				var states = []
 				var total_cases = []
+				var total_death = []
+				var year = []
+				var i = 0
 				var ignore = resJson.data.filteredStats.filter(x=>{
 					states.push(x.state)
 					total_cases.push(x.total_cases)
+					total_death.push(x.total_death)
+					year.push(new Date(x.submission_date).getFullYear() + i)
+					i++
 				})
 				this.setState( {total_cases: total_cases,
-				states: states} )
+				states: states,
+				total_death: total_death,
+			year: year} )
 			  }).catch(err => console.log(err));			
 	}
 
@@ -69,6 +79,14 @@ class ChoroplethMap extends Component {
 	// 	return plot_data
 	// }
 
+	sliderChange(event){
+		try {
+			console.log(event);			
+		} catch (error) {
+			console.log(error);
+		}
+	}
+
 	render() {
 		return (
 			<div>
@@ -87,14 +105,50 @@ class ChoroplethMap extends Component {
 							   z: this.state.total_cases,
 							   zmin: Math.min(this.state.total_cases), 
 							   zmax: Math.max(this.state.total_cases), 
-							   geo:{
-								scope: 'usa',
-								showlakes: true,
-								lakecolor: 'rgb(255,255,255)'
-							}
+							//    geo:{
+							// 	scope: 'usa',
+							// 	showlakes: true,
+							// 	lakecolor: 'rgb(255,255,255)'
+							// }
 						}
 						]}
-					layout = { {width: 1000, height: 500, title: 'Covid Case Count'} }
+					layout = {{
+						title: '1990 US Agriculture Exports by State',
+						geo:{
+						  scope: 'usa',
+						  showlakes: true,
+						  lakecolor: 'rgb(255,255,255)'
+						},
+						xaxis: {autorange: false},
+						yaxis: {autorange: false},
+						sliders: [{
+						  currentvalue: {
+							prefix: 'Year: ',
+						  },
+						  steps: this.state.year.map(f => ({
+							label: f,
+							method: 'animate',
+							args: [[f], {frame: {duration: 0}}]
+						  }))
+						}]
+					  }
+					}
+					onSliderChange = {
+						// this.sliderChange()
+						(e)=>{
+							// console.log(e.step.value);
+							// console.log(e);
+							if (Number(e.step.value) % 2 == 0) {
+								
+								console.log('Value is even');							
+								// console.log(this.context);
+							} else {
+								console.log('Value is odd');							
+							}
+							// Plot.
+						}
+					}
+					  
 				 />
 			</div>
 		)
