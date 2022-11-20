@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, useState } from "react";
 import Plot from 'react-plotly.js'
 
 class ChoroplethMap extends Component {
@@ -6,114 +6,94 @@ class ChoroplethMap extends Component {
 	// Set up states for loading data
 	constructor(props){
 		super(props);
-		this.state ={ data: [],
+		this.state ={ 
+			data: [],
 			total_cases: [],
 			total_death: [],
-		states: [],
-		year: [],
-	 }
+			states: [],
+			dateList: [],
+			zAxisData: [],
+			statisticsJsonData: [],
+			dateDict: {}
+		}
+	}
+	
+	formatResult (statsList, date){
+		var states = []
+		var total_cases = []
+		var total_death = []
+		var filteredList = statsList.filter(x=> x.submission_date == date)
+		var ignore = filteredList.filter(x=>{
+			states.push(x.state)
+			total_cases.push(x.total_cases)
+			total_death.push(x.total_death)
+			return null
+		})
+		this.setState( {
+			total_cases,
+			states,
+			total_death,
+			zAxisData: total_cases,
+		} )
 	}
 
 	// Call API upon component mount
 	componentDidMount() {
-		// const endpoint = "https://data.cityofnewyork.us/resource/rc75-m7u3.json";
+		const statsInput = `
+			query{
+				statistics{
+					state
+					total_cases
+					total_death
+					new_death
+					new_case
+					submission_date
+				}
+			}`
+		fetch("/stats", {
+				method: 'post',
+				headers: {'Content-Type':'application/graphql'},
+				body: statsInput
+			  })
+				.then((res) => res.json())
+				.then((resJson) => {
+					var dateList = []
+					var dateDict = {}
+					var formattedDateJSON = resJson.data.statistics.filter(x=>{
+						x.submission_date = new Date(x.submission_date).toLocaleDateString('en-US')
+						dateList.push(x.submission_date)
+						return x
 
-		// fetch(endpoint)
-		// 	.then(response => response.json())
-		// 	.then(data => {
-		// 		this.setState( {data: data} )
-		// 	})
-		const raw = `
-  query{
-    filteredStats(inputDate:"2020-05-05"){        
-        state
-        total_cases
-        total_death
-        new_death
-        new_case
-        submission_date
-    }
-}`
-		fetch("/filtered-stats", {
-			method: 'post',
-			headers: {'Content-Type':'application/graphql'},
-			body: raw
-		  })
-			.then((res) => res.json())
-			.then((resJson) => {
-				console.log(resJson);		
-				var states = []
-				var total_cases = []
-				var total_death = []
-				var year = []
-				var i = 0
-				var ignore = resJson.data.filteredStats.filter(x=>{
-					states.push(x.state)
-					total_cases.push(x.total_cases)
-					total_death.push(x.total_death)
-					year.push(new Date(x.submission_date).getFullYear() + i)
-					i++
-				})
-				this.setState( {total_cases: total_cases,
-				states: states,
-				total_death: total_death,
-			year: year} )
-			  }).catch(err => console.log(err));			
-	}
+					})
+					this.setState({
+						statisticsJsonData: formattedDateJSON,
+						dateList: [...new Set(dateList)],
+					})
+					this.formatResult( resJson.data.statistics, resJson.data.statistics[0].submission_date)
+				}).catch(err => console.log(err));
+			}
 
-	// Change data structure
-	// transformData (data) {
-	// 	let plot_data = [];
-
-	// 	let x = [];
-	// 	let y = [];
-	// 	data.map(each => {
-	// 		x.push(each.date_of_interest)
-	// 		y.push(each.case_count)
-	// 	})
-	// 	plot_data['x'] = x;
-	// 	plot_data['y'] = y;
-
-	// 	console.log(plot_data)
-
-	// 	return plot_data
-	// }
-
-	sliderChange(event){
-		try {
-			console.log(event);			
-		} catch (error) {
-			console.log(error);
-		}
-	}
+				
+			
 
 	render() {
+
 		return (
 			<div>
 				<Plot
 					data = {[
-							// {type: 'scatter',
-							//  mode: 'lines',
-							//  x: this.transformData(this.state.data)['x'],
-							//  y: this.transformData(this.state.data)['y'],
-							//  marker: { color: '#ed022d'}}
 							{
 								type: "choropleth", 
 								name: "USA-states",
 								locations: this.state.states,
 								locationmode: 'USA-states',
-							   z: this.state.total_cases,
-							   zmin: Math.min(this.state.total_cases), 
-							   zmax: Math.max(this.state.total_cases), 
-							//    geo:{
-							// 	scope: 'usa',
-							// 	showlakes: true,
-							// 	lakecolor: 'rgb(255,255,255)'
-							// }
+							   z: this.state.zAxisData,
+							   zmin: Math.min(this.state.zAxisData), 
+							   zmax: Math.max(this.state.zAxisData), 
 						}
 						]}
 					layout = {{
-						title: '1990 US Agriculture Exports by State',
+						title: 'Covid-19 Stats',
 						geo:{
 						  scope: 'usa',
 						  showlakes: true,
@@ -125,30 +105,17 @@ class ChoroplethMap extends Component {
 						  currentvalue: {
 							prefix: 'Year: ',
 						  },
-						  steps: this.state.year.map(f => ({
+						  steps: this.state.dateList.map(f => ({
 							label: f,
-							method: 'animate',
+							method: 'update',
 							args: [[f], {frame: {duration: 0}}]
 						  }))
 						}]
 					  }
 					}
-					onSliderChange = {
-						// this.sliderChange()
-						(e)=>{
-							// console.log(e.step.value);
-							// console.log(e);
-							if (Number(e.step.value) % 2 == 0) {
-								
-								console.log('Value is even');							
-								// console.log(this.context);
-							} else {
-								console.log('Value is odd');							
-							}
-							// Plot.
-						}
-					}
-					  
+					onSliderChange = {(e)=> this.formatResult(this.state.statisticsJsonData, e.step.value)}
+					useResizeHandler={true}
+			        style={{width: "100%", height: "100%"}}
 				 />
 			</div>
 		)

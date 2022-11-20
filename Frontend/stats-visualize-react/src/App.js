@@ -21,15 +21,15 @@ function App() {
     }
 }`
 
-  React.useEffect(() => {
-    fetch("/filtered-stats", {
-      method: 'post',
-      headers: {'Content-Type':'application/graphql'},
-      body: raw
-    })
-      .then((res) => res.json())
-      .then((d) => {
-        console.log(d);
+  // React.useEffect(() => {
+    // fetch("/filtered-stats", {
+    //   method: 'post',
+    //   headers: {'Content-Type':'application/graphql'},
+    //   body: raw
+    // })
+      // .then((res) => res.json())
+      // .then((d) => {
+        // console.log(d);
     //     var plotData, plotLayout = PrepareData(d)
     //     setData(plotData)
     //     setLayout(plotLayout)
@@ -46,8 +46,8 @@ function App() {
 
 // Plotly.newPlot('myDiv', data, layout);
 
-      }).catch(err => console.log(err));
-    }, []);
+      // }).catch(err => console.log(err));
+    // }, []);x 
 
   return (
     <div className="App">
