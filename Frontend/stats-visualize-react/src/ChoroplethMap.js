@@ -1,5 +1,6 @@
 import React, { Component, useState } from "react";
 import Plot from 'react-plotly.js'
+import './ChoroplethMap.css'
 
 class ChoroplethMap extends Component {
 
@@ -14,9 +15,37 @@ class ChoroplethMap extends Component {
 			dateList: [],
 			zAxisData: [],
 			statisticsJsonData: [],
-			dateDict: {}
+			dateDict: {},
+			dropdownValue: 'totalCases',
+			options: [
+
+				{ label: 'Total cases', value: 'totalCases'   },
+				{ label: 'Total deaths', value: 'totalDeaths' },
+				{ label: 'New cases', value: 'newCases' },
+				{ label: 'New deaths', value: 'newDeaths' },			  
+			  ]
 		}
 	}
+	
+	  
+	handleChange = (event) =>{
+		this.setState({ dropdownValue: event.target.value})	
+		switch (event.target.value) {
+			case 'totalCases':
+				this.setState({
+					zAxisData: this.state.total_cases
+				})
+				break;
+			
+			case 'totalDeaths':
+				this.setState({
+					zAxisData: this.state.total_death
+				})
+				break;
+		
+		}
+	} 
+	  
 	
 	formatResult (statsList, date){
 		var states = []
@@ -29,11 +58,24 @@ class ChoroplethMap extends Component {
 			total_death.push(x.total_death)
 			return null
 		})
+		switch (this.state.dropdownValue) {
+			case 'totalCases':
+				this.setState({
+					zAxisData: total_cases
+				})
+				break;
+			
+			case 'totalDeaths':
+				this.setState({
+					zAxisData: total_death
+				})
+				break;
+		
+		}
 		this.setState( {
 			total_cases,
 			states,
-			total_death,
-			zAxisData: total_cases,
+			total_death
 		} )
 	}
 
@@ -76,6 +118,15 @@ class ChoroplethMap extends Component {
 
 		return (
 			<div>
+				<div className="dropdown">
+					<label> Select value
+					<select id="selectOptions" value={this.state.dropdownValue} onChange={this.handleChange}>
+						{this.state.options.map((option) => (
+							<option value={option.value}>{option.label}</option>
+						))}
+					</select>
+					</label>
+				</div>
 				<Plot
 					data = {[
 						{
@@ -89,15 +140,7 @@ class ChoroplethMap extends Component {
 						}
 					]}
 					layout = {{
-						// title: `Covid-19 Stats ${}`,
-						title: `Covid-19 Stats`,
-						showlegend: true,
-						legend: {
-							title: {
-								text: 'Total cases',
-								side: 'left'
-							}
-						},
+						title: `Covid-19 Stats (${this.state.options.find(x=> x.value == this.state.dropdownValue).label})`,
 						geo:{
 						  scope: 'usa',
 						  showlakes: true,

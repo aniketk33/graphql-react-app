@@ -9,6 +9,7 @@ import  ChoroplethMap from './ChoroplethMap'
 function App() {
   const [data, setData] = React.useState(null);
   const [layout, setLayout] = React.useState(null);
+  const [value, setValue] = React.useState('totalCases');
   const raw = `
   query{
     filteredStats(inputDate:"2020-05-05"){        
@@ -50,10 +51,9 @@ function App() {
     // }, []);x 
 
   return (
-    <div className="App">
-      <ChoroplethMap  />
+    <div className="App" >
+        <ChoroplethMap/>
     </div>
-
   );
 }
 

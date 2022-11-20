@@ -1,0 +1,8 @@
+.dropdown{
+    text-align: start;
+    align-content: flex-start;
+    margin: 15px;
+  }
+  #selectOptions{
+    font-size: 20px;
+  }
