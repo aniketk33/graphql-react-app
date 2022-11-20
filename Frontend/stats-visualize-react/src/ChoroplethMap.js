@@ -63,7 +63,6 @@ class ChoroplethMap extends Component {
 						x.submission_date = new Date(x.submission_date).toLocaleDateString('en-US')
 						dateList.push(x.submission_date)
 						return x
-
 					})
 					this.setState({
 						statisticsJsonData: formattedDateJSON,
@@ -73,44 +72,51 @@ class ChoroplethMap extends Component {
 				}).catch(err => console.log(err));
 			}
 
-				
-			
-
 	render() {
 
 		return (
 			<div>
 				<Plot
 					data = {[
-							{
-								type: "choropleth", 
-								name: "USA-states",
-								locations: this.state.states,
-								locationmode: 'USA-states',
-							   z: this.state.zAxisData,
-							   zmin: Math.min(this.state.zAxisData), 
-							   zmax: Math.max(this.state.zAxisData), 
+						{
+							type: "choropleth", 
+							name: "USA-states",
+							locations: this.state.states,
+							locationmode: 'USA-states',
+							z: this.state.zAxisData,
+							zmin: Math.min(this.state.zAxisData), 
+							zmax: Math.max(this.state.zAxisData),
 						}
-						]}
+					]}
 					layout = {{
-						title: 'Covid-19 Stats',
+						// title: `Covid-19 Stats ${}`,
+						title: `Covid-19 Stats`,
+						showlegend: true,
+						legend: {
+							title: {
+								text: 'Total cases',
+								side: 'left'
+							}
+						},
 						geo:{
 						  scope: 'usa',
 						  showlakes: true,
 						  lakecolor: 'rgb(255,255,255)'
 						},
 						xaxis: {autorange: false},
-						yaxis: {autorange: false},
+						yaxis: {autorange: false},						
+						transition: {duration: 500},
 						sliders: [{
 						  currentvalue: {
 							prefix: 'Year: ',
 						  },
 						  steps: this.state.dateList.map(f => ({
 							label: f,
-							method: 'update',
-							args: [[f], {frame: {duration: 0}}]
+							method: 'immediate',
+							args: [[f], {frame: {redraw: false, duration: 500},
+							transition: {duration: 500}}]
 						  }))
-						}]
+						}],
 					  }
 					}
 					onSliderChange = {(e)=> this.formatResult(this.state.statisticsJsonData, e.step.value)}
