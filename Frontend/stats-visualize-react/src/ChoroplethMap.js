@@ -9,16 +9,16 @@ class ChoroplethMap extends Component {
 		super(props);
 		this.state ={ 
 			data: [],
-			total_cases: [],
-			total_death: [],
+			totalCases: [],
+			totalDeaths: [],
+			newCases: [],
+			newDeaths: [],
 			states: [],
 			dateList: [],
 			zAxisData: [],
 			statisticsJsonData: [],
-			dateDict: {},
 			dropdownValue: 'totalCases',
 			options: [
-
 				{ label: 'Total cases', value: 'totalCases'   },
 				{ label: 'Total deaths', value: 'totalDeaths' },
 				{ label: 'New cases', value: 'newCases' },
@@ -33,15 +33,25 @@ class ChoroplethMap extends Component {
 		switch (event.target.value) {
 			case 'totalCases':
 				this.setState({
-					zAxisData: this.state.total_cases
+					zAxisData: this.state.totalCases
 				})
 				break;
 			
 			case 'totalDeaths':
 				this.setState({
-					zAxisData: this.state.total_death
+					zAxisData: this.state.totalDeaths
 				})
 				break;
+			case 'newCases':
+				this.setState({
+					zAxisData: this.state.newCases
+				})
+			break;
+			case 'newDeaths':
+				this.setState({
+					zAxisData: this.state.newDeaths
+				})
+			break;
 		
 		}
 	} 
@@ -49,33 +59,49 @@ class ChoroplethMap extends Component {
 	
 	formatResult (statsList, date){
 		var states = []
-		var total_cases = []
-		var total_death = []
+		var totalCases = []
+		var totalDeaths = []
+		var newCases = []
+		var newDeaths = []
 		var filteredList = statsList.filter(x=> x.submission_date == date)
 		var ignore = filteredList.filter(x=>{
 			states.push(x.state)
-			total_cases.push(x.total_cases)
-			total_death.push(x.total_death)
+			totalCases.push(x.total_cases)
+			totalDeaths.push(x.total_death)
+			newCases.push(x.new_case)
+			newDeaths.push(x.new_death)
 			return null
 		})
 		switch (this.state.dropdownValue) {
 			case 'totalCases':
 				this.setState({
-					zAxisData: total_cases
+					zAxisData: totalCases
 				})
 				break;
 			
 			case 'totalDeaths':
 				this.setState({
-					zAxisData: total_death
+					zAxisData: totalDeaths
+				})
+				break;
+			case 'newCases':
+				this.setState({
+					zAxisData: newCases
+				})
+				break;
+			case 'newDeaths':
+				this.setState({
+					zAxisData: newDeaths
 				})
 				break;
 		
 		}
 		this.setState( {
-			total_cases,
+			totalCases,
 			states,
-			total_death
+			totalDeaths,
+			newCases,
+			newDeaths
 		} )
 	}
 
@@ -100,7 +126,6 @@ class ChoroplethMap extends Component {
 				.then((res) => res.json())
 				.then((resJson) => {
 					var dateList = []
-					var dateDict = {}
 					var formattedDateJSON = resJson.data.statistics.filter(x=>{
 						x.submission_date = new Date(x.submission_date).toLocaleDateString('en-US')
 						dateList.push(x.submission_date)
