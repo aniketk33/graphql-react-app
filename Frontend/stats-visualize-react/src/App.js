@@ -22,30 +22,24 @@ function App() {
     }
 }`
 
-  React.useEffect(() => {
-    const fetchData = async ()=>{
-      try {
-        const response = await fetch("/test", {
-          method: 'get',
-        })
-        const responseJson = await response.json()
-        setData(responseJson.message)      
-      } catch (err) {
-        console.log(err)
-      }
-  }
-  fetchData()
-    // })
-    //   .then((res) => {
-    //     return res.json()
-    //   }).then(x=> setData(x.message))
-    //   .catch(err => console.log(err));
-    }, []);
-    // This is test message from docker: 2
+//   React.useEffect(() => {
+//     const fetchData = async ()=>{
+//       try {
+//         const response = await fetch("/test", {
+//           method: 'get',
+//         })
+//         const responseJson = await response.json()
+//         setData(responseJson.message)      
+//       } catch (err) {
+//         console.log(err)
+//       }
+//   }
+//   fetchData()
+// }, []);
 
   return (
     <div className="App" >
-      {data}
+      <ChoroplethMap/>
     </div>
   );
 }

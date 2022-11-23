@@ -1,5 +1,18 @@
 version: "3.8"
 services:
+  python-script:
+    container_name: python-script
+    build:
+      context: .
+      dockerfile: Python-script/Dockerfile
+    command: python3 db.py
+    volumes:
+      - ./Python-script:/app
+    stdin_open: true
+    tty: true
+    depends_on:
+      - mysql_server
+
   graphql-api:
     build:
       context: .
