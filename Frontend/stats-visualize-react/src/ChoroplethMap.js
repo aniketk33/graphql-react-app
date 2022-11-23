@@ -1,14 +1,14 @@
-import React, { Component, useState } from "react";
+import React, { Component } from "react";
 import Plot from 'react-plotly.js'
 import './ChoroplethMap.css'
+import { RotatingLines } from 'react-loader-spinner'
 
 class ChoroplethMap extends Component {
 
 	// Set up states for loading data
 	constructor(props){
 		super(props);
-		this.state ={ 
-			data: [],
+		this.state ={
 			totalCases: [],
 			totalDeaths: [],
 			newCases: [],
@@ -23,7 +23,8 @@ class ChoroplethMap extends Component {
 				{ label: 'Total deaths', value: 'totalDeaths' },
 				{ label: 'New cases', value: 'newCases' },
 				{ label: 'New deaths', value: 'newDeaths' },			  
-			  ]
+			  ],
+			dataLoaded: false
 		}
 	}
 	
@@ -63,7 +64,7 @@ class ChoroplethMap extends Component {
 		var totalDeaths = []
 		var newCases = []
 		var newDeaths = []
-		var filteredList = statsList.filter(x=> x.submission_date == date)
+		var filteredList = statsList.filter(x=> x.submission_date === date)
 		var ignore = filteredList.filter(x=>{
 			states.push(x.state)
 			totalCases.push(x.total_cases)
@@ -118,26 +119,41 @@ class ChoroplethMap extends Component {
 					submission_date
 				}
 			}`
-		fetch("/stats", {
-				method: 'post',
-				headers: {'Content-Type':'application/graphql'},
-				body: statsInput
-			  })
-				.then((res) => res.json())
-				.then((resJson) => {
-					var dateList = []
-					var formattedDateJSON = resJson.data.statistics.filter(x=>{
-						x.submission_date = new Date(x.submission_date).toLocaleDateString('en-US')
-						dateList.push(x.submission_date)
-						return x
-					})
-					this.setState({
-						statisticsJsonData: formattedDateJSON,
-						dateList: [...new Set(dateList)],
-					})
-					this.formatResult( resJson.data.statistics, resJson.data.statistics[0].submission_date)
-				}).catch(err => console.log(err));
+		const fetchData = async ()=>{
+			try {
+				var mapTag = document.getElementById('map')
+				mapTag.style.display = "none"
+				const response = await fetch("/stats", {
+					method: 'post',
+					headers: {'Content-Type':'application/graphql'},
+					body: statsInput
+				  })
+				const resJson = await response.json()
+				var dateList = []
+				var formattedDateJSON = resJson.data.statistics.filter(x=>{
+					x.submission_date = new Date(x.submission_date).toLocaleDateString('en-US')
+					dateList.push(x.submission_date)
+					return x
+				})
+				this.setState({
+					statisticsJsonData: formattedDateJSON,
+					dateList: [...new Set(dateList)],
+				})
+				this.formatResult( resJson.data.statistics, resJson.data.statistics[0].submission_date)	
+				this.setState({
+					dataLoaded: true
+				})
+				mapTag.style.display = "block"
+
+			} catch (err) {
+				this.setState({
+					dataLoaded: false
+				})
+				console.log(err)
 			}
+		}
+		fetchData().catch(err=>console.log(err))
+	}
 
 	render() {
 
@@ -152,45 +168,55 @@ class ChoroplethMap extends Component {
 					</select>
 					</label>
 				</div>
-				<Plot
-					data = {[
-						{
-							type: "choropleth", 
-							name: "USA-states",
-							locations: this.state.states,
-							locationmode: 'USA-states',
-							z: this.state.zAxisData,
-							zmin: Math.min(this.state.zAxisData), 
-							zmax: Math.max(this.state.zAxisData),
+				<div>
+					<RotatingLines strokeColor="grey"
+									strokeWidth="5"
+									animationDuration="0.75"
+									width="96"
+									visible={!this.state.dataLoaded}/>
+				</div>
+				
+					<Plot divId="map"
+						data = {[
+							{
+								type: "choropleth", 
+								name: "USA-states",
+								locations: this.state.states,
+								locationmode: 'USA-states',
+								z: this.state.zAxisData,
+								zmin: Math.min(this.state.zAxisData), 
+								zmax: Math.max(this.state.zAxisData),
+							}
+						]}
+						layout = {{
+							title: `Covid-19 Stats (${this.state.options.find(x=> x.value === this.state.dropdownValue).label})`,
+							geo:{
+							scope: 'usa',
+							showlakes: true,
+							lakecolor: 'rgb(255,255,255)'
+							},
+							xaxis: {autorange: false},
+							yaxis: {autorange: false},						
+							transition: {duration: 500},
+							sliders: [{
+							currentvalue: {
+								prefix: 'Year: ',
+							},
+							steps: this.state.dateList.map(f => ({
+								label: f,
+								method: 'update',
+								execute: false,
+								args: [[f], {frame: {redraw: false, duration: 500},
+								transition: {duration: 500}}]
+							}))
+							}],
 						}
-					]}
-					layout = {{
-						title: `Covid-19 Stats (${this.state.options.find(x=> x.value == this.state.dropdownValue).label})`,
-						geo:{
-						  scope: 'usa',
-						  showlakes: true,
-						  lakecolor: 'rgb(255,255,255)'
-						},
-						xaxis: {autorange: false},
-						yaxis: {autorange: false},						
-						transition: {duration: 500},
-						sliders: [{
-						  currentvalue: {
-							prefix: 'Year: ',
-						  },
-						  steps: this.state.dateList.map(f => ({
-							label: f,
-							method: 'immediate',
-							args: [[f], {frame: {redraw: false, duration: 500},
-							transition: {duration: 500}}]
-						  }))
-						}],
-					  }
-					}
-					onSliderChange = {(e)=> this.formatResult(this.state.statisticsJsonData, e.step.value)}
-					useResizeHandler={true}
-			        style={{width: "100%", height: "100%"}}
-				 />
+						}
+						onSliderChange = {(e)=> this.formatResult(this.state.statisticsJsonData, e.step.value)}
+						useResizeHandler={true}
+						style={{width: "100%", height: "100%"}}
+					/>
+
 			</div>
 		)
 	}
