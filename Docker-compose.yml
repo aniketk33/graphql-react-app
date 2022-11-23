@@ -14,7 +14,8 @@ services:
   graphql-api:
     build:
       context: .
-      dockerfile: Backend/Dockerfile      
+      dockerfile: Backend/Dockerfile
+    # command: npm install
     container_name: express-server
     ports:
       - '4000:4000'
@@ -28,6 +29,7 @@ services:
     build:
       context: .
       dockerfile: Frontend/stats-visualize-react/Dockerfile
+    # command: npm install
     container_name: react-client
     ports:
       - '3000:3000'

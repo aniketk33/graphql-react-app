@@ -2,7 +2,7 @@ FROM node:latest
 
 WORKDIR /app
 
-COPY Backend/package.json .
+COPY Frontend/stats-visualize-react/package.json .
 
 RUN npm install
 
