@@ -4,7 +4,7 @@
   "description": "Visualizing covid-19 stats",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "prereq": "npm i nodemon --save-dev",
     "start": "nodemon app.js"
   },
   "repository": {

@@ -5,6 +5,8 @@ const { graphqlHTTP } = require('express-graphql')
 const graphql = require('graphql')
 const { getDbConnection } = require('./db')
 
+const PORT = 4000
+
 const StatsDataModel = new graphql.GraphQLObjectType({
     name: 'StatsObject',
     fields: {
@@ -106,10 +108,17 @@ const QueryRoot = new graphql.GraphQLObjectType({
     graphiql: true
   }))
 
+  app.get('/test', (req, res)=>{
+      res.json({
+          message: "Testing message from docker: Update 3"
+      })
+  })
+  
   app.all('*', (req, res) => {
     res.json({
         error: "Page not found"
     })
 })
 
-  app.listen(4000);  
+
+  app.listen(PORT);  

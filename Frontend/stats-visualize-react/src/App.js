@@ -22,37 +22,30 @@ function App() {
     }
 }`
 
-  // React.useEffect(() => {
-    // fetch("/filtered-stats", {
-    //   method: 'post',
-    //   headers: {'Content-Type':'application/graphql'},
-    //   body: raw
+  React.useEffect(() => {
+    const fetchData = async ()=>{
+      try {
+        const response = await fetch("/test", {
+          method: 'get',
+        })
+        const responseJson = await response.json()
+        setData(responseJson.message)      
+      } catch (err) {
+        console.log(err)
+      }
+  }
+  fetchData()
     // })
-      // .then((res) => res.json())
-      // .then((d) => {
-        // console.log(d);
-    //     var plotData, plotLayout = PrepareData(d)
-    //     setData(plotData)
-    //     setLayout(plotLayout)
-    //     // Plotly.newPlot(document.getElementById('myApp'), data, layout, {showLink: false})        
-    //     var myPlot = document.getElementById('myDiv'),
-    // x = [1, 2, 3, 4, 5],
-    // y = [10, 20, 30, 20, 10],
-    // data = [{x:x, y:y, type:'scatter',
-    //          mode:'markers', marker:{size:20}
-    //         }],
-    // layout = {hovermode:'closest',
-    //           title:'Click on Points'
-    //  };
-
-// Plotly.newPlot('myDiv', data, layout);
-
-      // }).catch(err => console.log(err));
-    // }, []);x 
+    //   .then((res) => {
+    //     return res.json()
+    //   }).then(x=> setData(x.message))
+    //   .catch(err => console.log(err));
+    }, []);
+    // This is test message from docker: 2
 
   return (
     <div className="App" >
-        <ChoroplethMap/>
+      {data}
     </div>
   );
 }
