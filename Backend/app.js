@@ -28,7 +28,7 @@ const StatsDataModel = new graphql.GraphQLObjectType({
 const getDBResults = async ()=>{
     try {
         const dbConnection = await getDbConnection()
-        const query = 'select submission_date, state, sum(tot_cases) as total_cases, sum(tot_death) as total_death, sum(new_case) as new_case, sum(new_death) as new_death from stats_new group by submission_date, state order by state, submission_date;'
+        const query = 'select submission_date, state, tot_cases as total_cases, tot_death as total_death, new_case, new_death from stats_new order by state, submission_date;'
         const formatted_query = dbConnection.format(query);
         const [data] = await dbConnection.query(formatted_query)
         return data        

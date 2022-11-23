@@ -9,6 +9,7 @@ class ChoroplethMap extends Component {
 	constructor(props){
 		super(props);
 		this.state ={
+			// frames: [],
 			totalCases: [],
 			totalDeaths: [],
 			newCases: [],
@@ -64,6 +65,16 @@ class ChoroplethMap extends Component {
 		var totalDeaths = []
 		var newCases = []
 		var newDeaths = []
+		// var frames = []
+		// for (let index = 0; index < this.state.dateList.length; index++) {
+		// 	const date = this.state.dateList[index];
+		// 	const dateSpecificData = statsList.filter(x=> x.submission_date === date)
+		// 	frames.push({
+		// 		name: date,
+		// 		data: dateSpecificData
+		// 	  })
+		// }
+
 		var filteredList = statsList.filter(x=> x.submission_date === date)
 		var ignore = filteredList.filter(x=>{
 			states.push(x.state)
@@ -102,7 +113,8 @@ class ChoroplethMap extends Component {
 			states,
 			totalDeaths,
 			newCases,
-			newDeaths
+			newDeaths,
+			// frames
 		} )
 	}
 
@@ -244,6 +256,7 @@ class ChoroplethMap extends Component {
 						}
 						onSliderChange = {(e)=> this.formatResult(this.state.statisticsJsonData, e.step.value)}
 						useResizeHandler={true}
+						// frames={this.state.frames}
 						
 					/>
 
