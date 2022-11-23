@@ -158,7 +158,7 @@ class ChoroplethMap extends Component {
 	render() {
 
 		return (
-			<div>
+			<div style={{display: "flex", flexDirection: "column", alignItems: "center"}}>
 				<div className="dropdown">
 					<label> Select value
 					<select id="selectOptions" value={this.state.dropdownValue} onChange={this.handleChange}>
@@ -169,13 +169,14 @@ class ChoroplethMap extends Component {
 					</label>
 				</div>
 				<div>
+
+				
 					<RotatingLines strokeColor="grey"
 									strokeWidth="5"
 									animationDuration="0.75"
 									width="96"
 									visible={!this.state.dataLoaded}/>
 				</div>
-				
 					<Plot divId="map"
 						data = {[
 							{
@@ -210,11 +211,40 @@ class ChoroplethMap extends Component {
 								transition: {duration: 500}}]
 							}))
 							}],
+							updatemenus: [{
+								x: 0,
+								y: 0,
+								yanchor: 'top',
+								xanchor: 'left',
+								showactive: false,
+								direction: 'left',
+								type: 'buttons',
+								pad: {t:100},
+								buttons: [{
+								  method: 'animate',
+								  args: [null, {
+									mode: 'immediate',
+									fromcurrent: true,
+									transition: {duration: 300},
+									frame: {duration: 500, redraw: false}
+								  }],
+								  label: 'Play'
+								}, {
+								  method: 'animate',
+								  args: [[null], {
+									mode: 'immediate',
+									transition: {duration: 0},
+									frame: {duration: 0, redraw: false}
+								  }],
+								  label: 'Pause'
+								}]
+							  }],
+						  
 						}
 						}
 						onSliderChange = {(e)=> this.formatResult(this.state.statisticsJsonData, e.step.value)}
 						useResizeHandler={true}
-						style={{width: "100%", height: "100%"}}
+						
 					/>
 
 			</div>
