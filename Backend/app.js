@@ -54,65 +54,14 @@ const QueryRoot = new graphql.GraphQLObjectType({
       }
     })
   })
-      
-  const filteredQueryRoot = new graphql.GraphQLObjectType({
-    name: 'filteredStats',
-    fields: ()=>({
-        filteredStats: {
-            type: new graphql.GraphQLList(StatsDataModel),
-            args: {
-                inputDate: { type: graphql.GraphQLString }
-              },        
-            resolve: async(_, {inputDate}) => {
-                try {
-                    const res = await getDBResults()
-                    const filteredResponse = res.filter((x)=> {
-                        const date = new Date(x.submission_date)
-                        var day = ''
-                        if (date.getDate() <= 9) {
-                            day = `0${date.getDate()}`
-                        } else {
-                            day = date.getDate()
-                        }
-                        var month = ''
-                        if (date.getMonth() <= 8) {
-                            month = `0${date.getMonth()+1}`
-                        } else {
-                            month = date.getMonth()+1
-                        }
-                        const year = date.getFullYear();
-                        const dateString = `${year}-${month}-${day}`;
-                        return dateString == inputDate
-                    })
-                    return filteredResponse
-                    
-                } catch (error) {
-                    return error
-                }
-            }
-        }
-    })
-  })
 
   const schema = new graphql.GraphQLSchema({ query: QueryRoot });
-  const filteredSchema = new graphql.GraphQLSchema({ query: filteredQueryRoot });
       
   const app = express();
   app.use('/stats', graphqlHTTP({
     schema: schema,
     graphiql: true,
   }));
-
-  app.use('/filtered-stats', graphqlHTTP({
-    schema: filteredSchema,
-    graphiql: true
-  }))
-
-  app.get('/test', (req, res)=>{
-      res.json({
-          message: "Testing message from docker: Update 3"
-      })
-  })
   
   app.all('*', (req, res) => {
     res.json({

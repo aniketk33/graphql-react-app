@@ -5,7 +5,7 @@ const mysql = require('mysql2/promise')
 module.exports.getDbConnection = async () => {
   try {
       const dbConnection = await mysql.createConnection({
-        host: 'mysql_server',
+        host: 'mysql_server', // change to 'localhost' when docker service is not up and running
         user: 'root',
         password: 'root123',
         database: 'covid_19_stats',

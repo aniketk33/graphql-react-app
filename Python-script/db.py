@@ -22,11 +22,17 @@ class DBActivities:
     def create_db_connection(self):
         try:
             DB_USER = 'root'
-            DB_HOST = 'mysql_server'
+            DB_HOST = 'mysql_server' # change to 'localhost' to test on local machine
             DB_PASSWORD = 'root123'
-            DB_NAME = 'covid_19_stats'
-            engine = db.create_engine(f'mysql+mysqlconnector://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}', echo=False)
-            db_conn = engine.connect()
+            DB_NAME = 'covid_19_stats_test'
+            mysql_engine = db.create_engine(f'mysql+mysqlconnector://{DB_USER}:{DB_PASSWORD}@{DB_HOST}', echo=False)
+            existing_databases = mysql_engine.execute("SHOW DATABASES;")
+            existing_databases = [db[0] for db in existing_databases]
+            if DB_NAME not in existing_databases:
+                mysql_engine.execute(f'CREATE DATABASE {DB_NAME};')
+
+            mysql_engine = db.create_engine(f'mysql+mysqlconnector://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}', echo=False)
+            db_conn = mysql_engine.connect()
             self.db_conn = db_conn
             print('DB Connection established')
         except Exception as ex:
