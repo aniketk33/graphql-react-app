@@ -4,7 +4,7 @@ services:
     container_name: python-script
     build:
       context: .
-      dockerfile: Python-script/Dockerfile
+      dockerfile: ./Python-script/Dockerfile
     command: python3 db.py
     volumes:
       - ./Python-script:/app
@@ -14,7 +14,7 @@ services:
   graphql-api:
     build:
       context: .
-      dockerfile: Backend/Dockerfile
+      dockerfile: ./Backend/Dockerfile
     # command: npm install
     container_name: express-server
     ports:
@@ -28,7 +28,7 @@ services:
   covid-stats-react:
     build:
       context: .
-      dockerfile: Frontend/stats-visualize-react/Dockerfile
+      dockerfile: ./Frontend/stats-visualize-react/Dockerfile
     # command: npm install
     container_name: react-client
     ports:

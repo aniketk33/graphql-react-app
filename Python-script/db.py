@@ -24,7 +24,7 @@ class DBActivities:
             DB_USER = 'root'
             DB_HOST = 'mysql_server' # change to 'localhost' to test on local machine
             DB_PASSWORD = 'root123'
-            DB_NAME = 'covid_19_stats_test'
+            DB_NAME = 'covid_19_stats'
             mysql_engine = db.create_engine(f'mysql+mysqlconnector://{DB_USER}:{DB_PASSWORD}@{DB_HOST}', echo=False)
             existing_databases = mysql_engine.execute("SHOW DATABASES;")
             existing_databases = [db[0] for db in existing_databases]
