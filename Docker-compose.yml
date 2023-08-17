@@ -1,0 +1,47 @@
+version: "3.8"
+services:
+  python-script:
+    container_name: python-script
+    build:
+      context: .
+      dockerfile: ./Python-script/Dockerfile
+    command: python3 db.py
+    volumes:
+      - ./Python-script:/app
+    depends_on:
+      - mysql_server
+
+  graphql-api:
+    build:
+      context: .
+      dockerfile: ./Backend/Dockerfile
+    # command: npm install
+    container_name: express-server
+    ports:
+      - '4000:4000'
+    volumes:
+      - ./Backend:/app
+      - '/app/node_modules'
+    depends_on:
+      - mysql_server
+  
+  covid-stats-react:
+    build:
+      context: .
+      dockerfile: ./Frontend/stats-visualize-react/Dockerfile
+    # command: npm install
+    container_name: react-client
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./Frontend/stats-visualize-react:/app
+      - '/app/node_modules'
+    depends_on:
+      - graphql-api
+
+  mysql_server:
+    image: mysql:latest    
+    container_name: mysql-server
+    environment: 
+      - MYSQL_DATABASE=covid_19_stats
+      - MYSQL_ROOT_PASSWORD=root123

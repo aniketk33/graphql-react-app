@@ -1,0 +1,29 @@
+{
+  "name": "graphql-react-app",
+  "version": "1.0.0",
+  "description": "Visualizing covid-19 stats",
+  "main": "app.js",
+  "scripts": {
+    "prereq": "npm i nodemon --save-dev",
+    "start": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aniketk33/graphql-react-app.git"
+  },
+  "author": "Aniket Kumar",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/aniketk33/graphql-react-app/issues"
+  },
+  "homepage": "https://github.com/aniketk33/graphql-react-app#readme",
+  "dependencies": {
+    "express": "^4.18.2",
+    "express-graphql": "^0.12.0",
+    "graphql": "^15.8.0",
+    "mysql2": "^2.3.3"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.20"
+  }
+}
